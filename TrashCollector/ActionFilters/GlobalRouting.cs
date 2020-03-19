@@ -11,8 +11,13 @@ namespace TrashCollector.ActionFilters
     public class GlobalRouting : IActionFilter
     {
         private readonly ClaimsPrincipal _claimsPrincipal;
+        public GlobalRouting(ClaimsPrincipal claimsPrincipal)
+        {
+            _claimsPrincipal = claimsPrincipal;
+        }
 
-        public void OnActionExecuted(ActionExecutedContext context)
+
+        public void OnActionExecuting(ActionExecutingContext context)
         {
             var controller = context.RouteData.Values["controller"];
             if (controller.Equals("Home"))
@@ -27,10 +32,9 @@ namespace TrashCollector.ActionFilters
                 }
             }
         }
-
-        public void OnActionExecuting(ActionExecutingContext context)
+        public void OnActionExecuted(ActionExecutedContext context)
         {
-            throw new NotImplementedException();
+
         }
     }
 }
