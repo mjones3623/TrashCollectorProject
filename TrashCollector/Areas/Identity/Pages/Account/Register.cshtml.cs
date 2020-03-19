@@ -78,8 +78,10 @@ namespace TrashCollector.Areas.Identity.Pages.Account
             Roles = new SelectList(roles, "Name", "Name");
         }
 
+        
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
+            
             returnUrl = returnUrl ?? Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             
@@ -112,8 +114,17 @@ namespace TrashCollector.Areas.Identity.Pages.Account
                     }
                     else
                     {
+                        
                         await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
+                        if (Input.Role == "Customer")
+                        {
+                            return RedirectToAction("Create", "Customers"); /*LocalRedirect(returnUrl);*/
+                        }
+                        else
+                        {
+                            return RedirectToAction("Create", "Employees"); /*LocalRedirect(returnUrl);*/
+                        }
+                            
                     }
                 }
                 foreach (var error in result.Errors)
