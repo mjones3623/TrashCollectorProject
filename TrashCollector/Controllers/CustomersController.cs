@@ -65,9 +65,12 @@ namespace TrashCollector.Controllers
                 _context.Add(customer);
                 await _context.SaveChangesAsync();
                 var customerInDB = _context.Customers.Single(m => m.CustomerId == customer.CustomerId);
+                var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
                 customerInDB.PriceForPickup = 15;
+                customerInDB.IdentityUserId = userId;
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+
+                return RedirectToAction(nameof(CustomerHome));
             }
             ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", customer.IdentityUserId);
             return View(customer);
@@ -160,5 +163,37 @@ namespace TrashCollector.Controllers
         {
             return _context.Customers.Any(e => e.CustomerId == id);
         }
+
+        // GET: CustomerHome
+        public IActionResult CustomerHome()
+        {
+            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var customer = _context.Customers.Where(m => m.IdentityUserId == userId).FirstOrDefault();
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            return View(customer);
+        }
+
+        // POST: CustomerHome
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult CustomerHome(Customer customer)
+        {
+            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var customerInDb = _context.Customers.Where(m => m.IdentityUserId == userId).FirstOrDefault();
+            customerInDb.PickupDay = customer.PickupDay;
+            customerInDb.OneTimePickUpDate = customer.OneTimePickUpDate;
+            customerInDb.TempSuspendStart = customer.TempSuspendStart;
+            customerInDb.TempSuspendEnd = customer.TempSuspendEnd;
+            _context.SaveChanges();
+            return RedirectToAction("CustomerHome", "Customers");
+        }
+
+
     }
 }
