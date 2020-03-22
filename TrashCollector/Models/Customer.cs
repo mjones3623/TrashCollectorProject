@@ -18,7 +18,7 @@ namespace TrashCollector.Models
         public string State { get; set; }
         public string ZipCoded { get; set; }
         public string PhoneNumber { get; set; }
-        public string PickupDay { get; set; }
+        public DayOfWeek PickupDay { get; set; }
         public DateTime OneTimePickUpDate { get; set; }
         public int Balance { get; set; }
         public DateTime TempSuspendStart { get; set; }

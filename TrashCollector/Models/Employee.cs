@@ -19,6 +19,7 @@ namespace TrashCollector.Models
         public string ZipCoded { get; set; }
         public string ServiceZip { get; set; }
         
+        public DayOfWeek QueryDate { get; set; }
 
         [ForeignKey("IdentityUser")]
         public string IdentityUserId { get; set; }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -63,7 +64,11 @@ namespace TrashCollector.Controllers
             {
                 _context.Add(employee);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var employeeInDB = _context.Employees.Single(m => m.EmployeeId == employee.EmployeeId);
+                var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+                
+                employeeInDB.IdentityUserId = userId;
+                return RedirectToAction(nameof(EmployeeDefaultView));
             }
             ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", employee.IdentityUserId);
             return View(employee);
@@ -156,5 +161,13 @@ namespace TrashCollector.Controllers
         {
             return _context.Employees.Any(e => e.EmployeeId == id);
         }
+
+        //Employee Default View
+        public async Task<IActionResult> EmployeeDefaultView()
+        {
+            var applicationDbContext = _context.Customers.Include(e => e.IdentityUser);
+            return View(await applicationDbContext.ToListAsync());
+        }
+
     }
 }
