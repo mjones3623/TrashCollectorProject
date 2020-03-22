@@ -64,10 +64,11 @@ namespace TrashCollector.Controllers
             {
                 _context.Add(employee);
                 await _context.SaveChangesAsync();
+                
                 var employeeInDB = _context.Employees.Single(m => m.EmployeeId == employee.EmployeeId);
                 var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-                
                 employeeInDB.IdentityUserId = userId;
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(EmployeeDefaultView));
             }
             ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", employee.IdentityUserId);
@@ -170,7 +171,6 @@ namespace TrashCollector.Controllers
 
             var employee = _context.Employees.Where(i => i.IdentityUserId == userId).FirstOrDefault();
             
-
             var applicationDbContext = _context.Customers.Where(e => (e.PickupDay == dt.DayOfWeek) &&
                 (e.ZipCoded == employee.ServiceZip));
             return View(await applicationDbContext.ToListAsync());
