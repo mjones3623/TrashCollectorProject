@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TrashCollector.Data;
 
-namespace TrashCollector.Data.Migrations
+namespace TrashCollector.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200322180606_Migration4")]
-    partial class Migration4
+    [Migration("20200322200118_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -50,22 +50,22 @@ namespace TrashCollector.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "bbf74dcc-a683-41ee-be85-a05fa5b9bdbd",
-                            ConcurrencyStamp = "a674184d-c0d2-4961-a052-d307c8d0db64",
+                            Id = "4df975df-6622-4455-a4aa-01f83c64c970",
+                            ConcurrencyStamp = "769b3497-f6af-404c-b20d-b63a8068b0b5",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "9c561abb-89f0-4f26-9c11-5dd9da80a27a",
-                            ConcurrencyStamp = "d8c5543d-2a25-4d10-806f-b9cc90c8b42b",
+                            Id = "d3602ea1-2461-4671-b066-1b2902244832",
+                            ConcurrencyStamp = "78659463-e154-4785-9a87-77c301c3f108",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
-                            Id = "bd1959b3-d118-4493-a419-8ff6a00a8ced",
-                            ConcurrencyStamp = "317ac859-983f-4736-92c6-afd3a3a97a7b",
+                            Id = "32657419-6afc-4947-970a-1dfd42e65bef",
+                            ConcurrencyStamp = "a7c6f3b7-43b7-4379-be9a-0b1a359e1c6a",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         });
@@ -315,8 +315,8 @@ namespace TrashCollector.Data.Migrations
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("QueryDate")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("QueryDate")
+                        .HasColumnType("int");
 
                     b.Property<string>("ServiceZip")
                         .HasColumnType("nvarchar(max)");

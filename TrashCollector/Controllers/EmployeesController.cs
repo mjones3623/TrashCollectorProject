@@ -165,7 +165,14 @@ namespace TrashCollector.Controllers
         //Employee Default View
         public async Task<IActionResult> EmployeeDefaultView()
         {
-            var applicationDbContext = _context.Customers.Include(e => e.IdentityUser);
+            DateTime dt = DateTime.Today;
+            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var employee = _context.Employees.Where(i => i.IdentityUserId == userId).FirstOrDefault();
+            
+
+            var applicationDbContext = _context.Customers.Where(e => (e.PickupDay == dt.DayOfWeek) &&
+                (e.ZipCoded == employee.ServiceZip));
             return View(await applicationDbContext.ToListAsync());
         }
 
