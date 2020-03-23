@@ -171,8 +171,15 @@ namespace TrashCollector.Controllers
 
             var employee = _context.Employees.Where(i => i.IdentityUserId == userId).FirstOrDefault();
             
-            var applicationDbContext = _context.Customers.Where(e => (e.PickupDay == dt.DayOfWeek) &&
-                (e.ZipCoded == employee.ServiceZip));
+            var applicationDbContext = _context.Customers.Where(e => 
+
+            (dt !>= e.TempSuspendStart && dt !<= e.TempSuspendEnd) &&                        //Today not >= startSuspend && Today not <= endSuspend 
+                                                                                             //AND   
+            (((e.PickupDay == dt.DayOfWeek) && (e.ZipCoded == employee.ServiceZip)) ||       //(CustPickupDay = Today && CustZip = EmployeeZip
+                                                                                             //OR
+            ((e.OneTimePickUpDate == dt) && (e.ZipCoded == employee.ServiceZip))));          //Today = OneTimePickup && CustZip = EmployeeZip)  
+
+
             return View(await applicationDbContext.ToListAsync());
         }
 
