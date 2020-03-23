@@ -24,6 +24,7 @@ namespace TrashCollector.Models
         public DateTime TempSuspendStart { get; set; }
         public DateTime TempSuspendEnd { get; set; }
         public int PriceForPickup { get; set; }
+        public DateTime LastPickup { get; set; }
 
         [ForeignKey("IdentityUser")]
         public string IdentityUserId { get; set; }
