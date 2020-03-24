@@ -13,12 +13,15 @@ namespace TrashCollector.Controllers
 {
     public class EmployeesController : Controller
     {
+
+
         private readonly ApplicationDbContext _context;
 
         public EmployeesController(ApplicationDbContext context)
         {
             _context = context;
         }
+
 
         // GET: Employees
         public async Task<IActionResult> Index()
@@ -78,8 +81,19 @@ namespace TrashCollector.Controllers
         // GET: Employees/Edit/5
         public async Task<IActionResult> Edit()
         {
+            ViewBag.DaysOfWeek = new SelectList(new List<SelectListItem>()
+            {
+                new SelectListItem(){Value ="Sunday", Text = "Sunday"},
+                new SelectListItem(){Value ="Monday", Text = "Monday"},
+                new SelectListItem(){Value = "Tuesday", Text = "Tuesday"},
+                new SelectListItem(){Value ="Wednesday", Text = "Wednesday"},
+                new SelectListItem(){Value ="Thursday", Text = "Thursday"},
+                new SelectListItem(){Value = "Friday", Text = "Friday"},
+                new SelectListItem(){Value = "Saturday", Text = "Saturday"}
+            });
             var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var employee = _context.Employees.Where(i => i.IdentityUserId == userId).FirstOrDefault();
+           
             if (employee == null)
             {
                 return NotFound();
@@ -188,13 +202,13 @@ namespace TrashCollector.Controllers
             return View(await applicationDbContext.ToListAsync());
         }
         //Employee FilterByDay
-        public async Task<IActionResult> FilterByDay()
+        public async Task<IActionResult> FilterByDay(DayOfWeek dayOfWeek)
         {
             var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var employee = _context.Employees.Where(i => i.IdentityUserId == userId).FirstOrDefault();
                                     
             DateTime dt = DateTime.Today;
-            DayOfWeek dw = employee.QueryDate;
+            DayOfWeek dw = dayOfWeek;
 
             int num = (int)DateTime.Today.DayOfWeek;
             int num2 = (int)dw;
