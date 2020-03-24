@@ -79,47 +79,35 @@ namespace TrashCollector.Controllers
         }
 
         // GET: Employees/Edit/5
-        public async Task<IActionResult> Edit()
+        public async Task<IActionResult> Edit(int? id)
         {
-            ViewBag.DaysOfWeek = new SelectList(new List<SelectListItem>()
-            {
-                new SelectListItem(){Value ="Sunday", Text = "Sunday"},
-                new SelectListItem(){Value ="Monday", Text = "Monday"},
-                new SelectListItem(){Value = "Tuesday", Text = "Tuesday"},
-                new SelectListItem(){Value ="Wednesday", Text = "Wednesday"},
-                new SelectListItem(){Value ="Thursday", Text = "Thursday"},
-                new SelectListItem(){Value = "Friday", Text = "Friday"},
-                new SelectListItem(){Value = "Saturday", Text = "Saturday"}
-            });
-            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var employee = _context.Employees.Where(i => i.IdentityUserId == userId).FirstOrDefault();
-           
-            if (employee == null)
+            var customer = _context.Customers.Where(i => i.CustomerId == id).FirstOrDefault();
+
+            if (customer == null)
             {
                 return NotFound();
             }
 
-            //var employee = await _context.Employees.FindAsync(id);
-            //if (employee == null)
-            //{
-            //    return NotFound();
-            //}
-            //ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", employee.IdentityUserId);
-            return View(employee);
+
+            return View(customer);
+
         }
+            
+        
 
         // POST: Employees/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(/*int id, [Bind("EmployeeId,FirstName,LastName,StreetAddress,City,State,ZipCoded,ServiceZip,IdentityUserId")]*/ Employee employee)
+        public async Task<IActionResult> Edit(Customer customer )
         {
-            var employeeInDB = _context.Employees.Single(m => m.IdentityUserId == employee.IdentityUserId);
-            employeeInDB.QueryDate = employee.QueryDate;
+            var customerInDB = _context.Customers.Where(m => m.CustomerId == customer.CustomerId).FirstOrDefault();
+            customerInDB.LastPickup = customer.LastPickup;
+            customerInDB.Balance = customerInDB.Balance + customerInDB.PriceForPickup;
             
             _context.SaveChanges();
-            return RedirectToAction("FilterByDay", "Employees");
+            return RedirectToAction("EmployeeDefaultView", "Employees");
 
             //if (id != employee.EmployeeId)
             //{
@@ -223,6 +211,8 @@ namespace TrashCollector.Controllers
 
             return View(await applicationDbContext.ToListAsync());
         }
+        
+
 
     }
 }

@@ -77,19 +77,16 @@ namespace TrashCollector.Controllers
         }
 
         // GET: Customers/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int userId)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var customer = _context.Customers.Where(i => i.CustomerId == userId).FirstOrDefault();
 
-            var customer = await _context.Customers.FindAsync(id);
             if (customer == null)
             {
                 return NotFound();
             }
-            ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", customer.IdentityUserId);
+
+
             return View(customer);
         }
 
@@ -98,35 +95,14 @@ namespace TrashCollector.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CustomerId,FirstName,LastName,StreetAddress,City,State,ZipCoded,PhoneNumber,PickupDay,OneTimePickUpDate,Balance,TempSuspendStart,TempSuspendEnd,PriceForPickup,IdentityUserId")] Customer customer)
+        public async Task<IActionResult> Edit(Customer customer)
         {
-            if (id != customer.CustomerId)
-            {
-                return NotFound();
-            }
+            var customerInDB = _context.Customers.Where(m => m.IdentityUserId == customer.IdentityUserId).FirstOrDefault();
+            customerInDB.LastPickup = customer.LastPickup;
+            customerInDB.Balance = customerInDB.Balance + customerInDB.PriceForPickup;
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(customer);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CustomerExists(customer.CustomerId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", customer.IdentityUserId);
-            return View(customer);
+            _context.SaveChanges();
+            return RedirectToAction("EmployeeDefaultView", "Employees");
         }
 
         // GET: Customers/Delete/5
