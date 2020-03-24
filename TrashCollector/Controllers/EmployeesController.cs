@@ -76,19 +76,21 @@ namespace TrashCollector.Controllers
         }
 
         // GET: Employees/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit()
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var employee = await _context.Employees.FindAsync(id);
+            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var employee = _context.Employees.Where(i => i.IdentityUserId == userId).FirstOrDefault();
             if (employee == null)
             {
                 return NotFound();
             }
-            ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", employee.IdentityUserId);
+
+            //var employee = await _context.Employees.FindAsync(id);
+            //if (employee == null)
+            //{
+            //    return NotFound();
+            //}
+            //ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", employee.IdentityUserId);
             return View(employee);
         }
 
@@ -97,35 +99,41 @@ namespace TrashCollector.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("EmployeeId,FirstName,LastName,StreetAddress,City,State,ZipCoded,ServiceZip,IdentityUserId")] Employee employee)
+        public async Task<IActionResult> Edit(/*int id, [Bind("EmployeeId,FirstName,LastName,StreetAddress,City,State,ZipCoded,ServiceZip,IdentityUserId")]*/ Employee employee)
         {
-            if (id != employee.EmployeeId)
-            {
-                return NotFound();
-            }
+            var employeeInDB = _context.Employees.Single(m => m.IdentityUserId == employee.IdentityUserId);
+            employeeInDB.QueryDate = employee.QueryDate;
+            
+            _context.SaveChanges();
+            return RedirectToAction("FilterByDay", "Employees");
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(employee);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!EmployeeExists(employee.EmployeeId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", employee.IdentityUserId);
-            return View(employee);
+            //if (id != employee.EmployeeId)
+            //{
+            //    return NotFound();
+            //}
+
+            //if (ModelState.IsValid)
+            //{
+            //    try
+            //    {
+            //        _context.Update(employee);
+            //        await _context.SaveChangesAsync();
+            //    }
+            //    catch (DbUpdateConcurrencyException)
+            //    {
+            //        if (!EmployeeExists(employee.EmployeeId))
+            //        {
+            //            return NotFound();
+            //        }
+            //        else
+            //        {
+            //            throw;
+            //        }
+            //    }
+            //    return RedirectToAction(nameof(Index));
+            //}
+            //ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", employee.IdentityUserId);
+            //return View(employee);
         }
 
         // GET: Employees/Delete/5
@@ -177,6 +185,28 @@ namespace TrashCollector.Controllers
                 (e.OneTimePickUpDate == dt && e.ZipCoded == employee.ServiceZip));
 
             
+            return View(await applicationDbContext.ToListAsync());
+        }
+        //Employee FilterByDay
+        public async Task<IActionResult> FilterByDay()
+        {
+            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var employee = _context.Employees.Where(i => i.IdentityUserId == userId).FirstOrDefault();
+                                    
+            DateTime dt = DateTime.Today;
+            DayOfWeek dw = employee.QueryDate;
+
+            int num = (int)DateTime.Today.DayOfWeek;
+            int num2 = (int)dw;
+
+            DateTime qd = DateTime.Today.AddDays(num2 - num);
+                                    
+            var applicationDbContext = _context.Customers
+                .Where(e => (qd < e.TempSuspendStart || qd > e.TempSuspendEnd) &&
+                (e.PickupDay == dw) && (e.ZipCoded == employee.ServiceZip) ||
+                (e.OneTimePickUpDate == qd && e.ZipCoded == employee.ServiceZip));
+
+
             return View(await applicationDbContext.ToListAsync());
         }
 
